@@ -1,0 +1,29 @@
+
+
+
+
+
+a=['"114"','"514"','"19180"']
+print(','.join(a))
+print("%s"%','.join(a))
+# print("%s"%"114","514","19180")
+
+# print("%s"%"114","%s"%"514","%s"%"19180")
+
+
+# print("114","514","19180")
+# print("%s %s %s"%("114","514","19180"))
+id=0
+source=''
+url=""
+path=''
+hash=''
+artist=''
+copyright=''
+character=''
+craw=0
+exit=0
+r18=0
+Pre=1
+stars=0
+other_tags=""
