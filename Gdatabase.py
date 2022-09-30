@@ -1,5 +1,6 @@
 import sqlite3
 
+
 class Data():
     def __init__(self,**dict):
         self.dict=dict   
@@ -23,9 +24,10 @@ class DataBase():
         self.cur=self.connection.cursor()
         self.insert_sql=''
         self.data=''
+        self.select_sql='select {tar} from {Tablename} where {attribute} ="{values}"'
         self.createPic_sql='''
                 create table Picture(
-                Picid text primary key,
+                Picid INTEGER primary key,
                 local_path text,
                 master text,
                 delet text,
@@ -38,13 +40,13 @@ class DataBase():
                 origin_url text,
                 master_url text)
     '''
-        self.createTag_sql='''
+        self.createTags_sql='''
                 create table Tags(
-                Tagid text primary key,
+                Tagid INTEGER PRIMARY KEY AUTOINCREMENT,
                 Gelname text,
                 Chiname text)
         '''
-        self.createPic_tag_sql='''
+        self.createPic_tags_sql='''
                 create table Tags_Pic(
                 Tagid text,
                 Picid text)
@@ -69,19 +71,20 @@ class DataBase():
             print(e)
             print('删除表失败')
             return 0
-    def genInsertSql(self,**dict):
+    def genInsertSql(self,Tablename,**dict):
         '''生成插入的sql语句'''
-        base='INSERT OR IGNORE INTO Picture ({key}) VALUES ({value})'
+        base='INSERT INTO {name} ({key}) VALUES ({value})'
         sql_keys=','.join(['{}'.format(i) for i in list(dict.keys())])
         sql_values=','.join(['?' for i in range(len(list(dict.keys())))])
         
-        insert_sql=base.format(key=sql_keys,value=sql_values)
+        insert_sql=base.format(name=Tablename,key=sql_keys,value=sql_values)
         values=tuple(dict.values())
         
         self.insert_sql=insert_sql
         self.data=values
         return 1
     def insertTable(self):
+        '''无参数,修改对象的sql和data后调用'''
         try:
             self.cur.execute(self.insert_sql,self.data)
             self.connection.commit()
@@ -91,7 +94,18 @@ class DataBase():
             print(e)
             print('插入数据失败')
             return 0
-    
+    def selectTable(self,sql):
+        try:
+            self.cur.execute(sql)
+            result=self.cur.fetchall()
+            for row in result:
+                for line in row:
+                    print(line,end=' ')
+            return 1
+        except Exception as e:
+            print(e)
+            print('查询失败')
+            return 0
     def __del__(self):
         '''析构函数'''
         self.cur.close()
@@ -108,8 +122,22 @@ if __name__=='__main__':
     }
 
     db=DataBase()
+    
+    # db.dropTable('Picture')
+    # db.dropTable('Tags')
+    # db.dropTable('Tags_Pic')
     # db.createTable(db.createPic_sql)
-    # db.createTable(db.createTag_sql)
-    # db.createTable(db.createPic_tag_sql)
-    with open('对照表.csv','r',encoding='utf-8-sig') as f:
-        dicts=f.read().split('\n')
+    # db.createTable(db.createTags_sql)
+    # db.createTable(db.createPic_tags_sql)
+
+    # with open('对照表.csv','r',encoding='utf-8-sig') as f:
+    #     lines=f.read().split('\n')
+    #     for line in lines:
+    #         tagdict={}
+    #         if(len(line.split(','))>=3):
+    #             tagdict['Chiname']=line.split(',')[1]
+    #             tagdict['Gelname']=line.split(',')[2]
+    #             db.genInsertSql('Tags',**tagdict)
+    #             db.insertTable()
+    values='hu_tao_(genshin_impact)'
+    db.selectTable(db.select_sql.format(tar='Tagid',Tablename='Tags',attribute='Gelname',values=values))
