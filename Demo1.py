@@ -1,10 +1,5 @@
 import sqlite3
 class DataBase:
-    
-
-
-    
-
     #初始化，连接数据库得到游标
     def __init__(self,db='pic.db'):
         self.connection=sqlite3.connect(db)
@@ -140,17 +135,18 @@ sql_selectTable='select path from Picture where {0} in (artist or copyright or c
 sql_updateTable=''
 sql_deleteTable=''
 
-# picDatabase=DataBase()
+picDatabase=DataBase()
 # # picDatabase.dropTable(sql_dropTable)
 # # picDatabase.createTable(sql_createTable)
 
-# dict={
-# 'id':1131,
-# 'artist':'猫1雷',
-# 'source':'P站',
-# 'hash':'114514'
-# }
+
+dict={
+'id':1131,
+'artist':'猫1雷',
+'source':'P站',
+'hash':'114514'
+}
 # dict=picDatabase.getDict()
-# sql=picDatabase.generateSql(dict)
-# print(sql)
+sql=picDatabase.generateSql(dict)
+print(sql)
 # picDatabase.insertTable(sql[0],sql[1])

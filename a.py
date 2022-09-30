@@ -27,3 +27,5 @@ r18=0
 Pre=1
 stars=0
 other_tags=""
+# https://img3.gelbooru.com//samples/d3/c0/sample_d3c04b98e118908fc575fc146a44ec6b.jpg
+# https://img3.gelbooru.com/images/d3/c0/d3c04b98e118908fc575fc146a44ec6b.png
