@@ -1,30 +1,19 @@
 import sqlite3
 
 class Data():
-    def __init__(self,id,**dict):
-        self.id=id
-        self.master     =0  #是否为原图
-        self.download   =0  #下载是否成功
-        self.dict       =dict   #图片标签
-        # self.origin_url =dict.get('origin_url')
-        # self.artist     =dict.get('artist')
-        # self.character  =dict.get('character')
-        # self.metadata   =dict.get('matadata')
-        # self.tag        =dict.get('tag')
-    def downloadMark(self):
-        '''下载成功后标记'''
-        self.download=1
-    def masterMark(self):
-        '''下载原图后标记'''
-        self.master=1
+    def __init__(self,**dict):
+        self.dict=dict   
+
+    def Mark(self,tar):
+        '''下载/原图/删除后标记'''
+        self.dict[tar]=1
+    
     def updateDic(self,**dict):
-        '''更新图片标签'''
+        '''更新图片信息'''
         for key,value in dict.items():
             self.dict[key]=value
     def show(self):
         '''打印全部私有变量'''
-        print("id:{}".format(self.id),end=' ')
-        print("是否原图:{},是否下载成功{}".format(self.master,self.download))
         print(self.dict)    
 
 class DataBase():
@@ -33,11 +22,13 @@ class DataBase():
         self.connection=sqlite3.connect(db)
         self.cur=self.connection.cursor()
         self.insert_sql=''
-        self.create_sql='''
+        self.data=''
+        self.createPic_sql='''
                 create table Picture(
-                id integer primary key,
+                Picid text primary key,
                 local_path text,
                 master text,
+                delet text,
                 download text,
                 artist text,
                 character text,
@@ -47,17 +38,36 @@ class DataBase():
                 origin_url text,
                 master_url text)
     '''
-        self.data=''
+        self.createTag_sql='''
+                create table Tags(
+                Tagid text primary key,
+                Gelname text,
+                Chiname text)
+        '''
+        self.createPic_tag_sql='''
+                create table Tags_Pic(
+                Tagid text,
+                Picid text)
+        '''
         
-    def createTable(self):
+    def createTable(self,sql):
         '''创建表'''
         try:
-            self.cur.execute(self.create_sql)
+            self.cur.execute(sql)
             print('创建表成功')
             return 1
         except Exception as e:
             print(e)
             print('创建表失败')
+            return 0
+    def dropTable(self,table_name):
+        try:
+            self.cur.execute('drop table {}'.format(table_name))
+            print('删除表成功')
+            return 1
+        except Exception as e:
+            print(e)
+            print('删除表失败')
             return 0
     def genInsertSql(self,**dict):
         '''生成插入的sql语句'''
@@ -88,21 +98,18 @@ class DataBase():
         self.connection.close()
 
 if __name__=='__main__':
-    dict=\
-    {
+    dict={
     'artist':'hiki niitto',
     'character':'甘雨a',    
     }
-    updatadict=\
-    {
+    updatadict={
     'character':'甘雨,胡桃',
     'metadata':'highres'
     }
-    a=Data('1',**dict)
-    # a.show()
-    #a.updateDic(**updatadict)
-    # a.show()
+
     db=DataBase()
-    db.genInsertSql(**a.dict,**{'id':a.id,'master':a.master,'download':a.download})
-    print(db.insert_sql,db.data)
-    db.insertTable()
+    # db.createTable(db.createPic_sql)
+    # db.createTable(db.createTag_sql)
+    # db.createTable(db.createPic_tag_sql)
+    with open('对照表.csv','r',encoding='utf-8-sig') as f:
+        dicts=f.read().split('\n')
