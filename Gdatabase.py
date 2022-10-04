@@ -1,6 +1,5 @@
 import sqlite3
 
-from matplotlib.table import Table
 
 class Data():
     def __init__(self,**dict):
@@ -111,11 +110,9 @@ class DataBase():
         try:
             self.cur.execute(sql)
             self.connection.commit()
-            print('插入数据成功')
             return 1
         except Exception as e:
             print(e)
-            print('插入数据失败')
             return 0
     
     def updateTable(self,sql):
@@ -123,11 +120,9 @@ class DataBase():
         try:
             self.cur.execute(sql)
             self.connection.commit()
-            print('更新数据成功')
             return 1
         except Exception as e:
             print(e)
-            print('更新数据失败')
             return 0
     
     def selectTable(self,sql):
@@ -138,8 +133,34 @@ class DataBase():
             return result
         except Exception as e:
             print(e)
-            print('查询失败')
             return 0
+    
+    def updataTags(self):
+        '''由根目录下的对照表更新Tags表'''
+        with open('对照表.csv','r',encoding='utf-8-sig') as f:
+            lines=f.read().split('\n')
+            for line in lines:
+                tagdict={}
+                line_list=line.split(',')
+                if(len(line_list)>=3):
+                    tagdict['Chiname']=line_list[1]
+                    tagdict['Gelname']=line_list[2]
+                    if (db.genSelectSql(Tablename='Tags',target=['*'],**{'Gelname':line_list[2]})):
+                        db.genUpdateSql(Tablename='Tags',condition={'Gelname':line_list[2]},**tagdict)
+                    else:
+                        db.genInsertSql(Tablename='Tags',**tagdict)
+    
+    def insertData(self,**data):
+        '''在Picture表插入一条新数据'''
+        if(self.genInsertSql('Picture',**data)):
+            tags=data['character'].split(',')
+            for Gelname in tags:
+                tagids=db.genSelectSql(Tablename='Tags',target=['Tagid'],**{'Gelname':Gelname})
+                for tagid in tagids:
+                    db.genInsertSql(Tablename='Tags_pic',**{'Tagid':tagid[0],'Picid':data['Picid']})
+        else:
+            Picid=data.pop('Picid')
+            self.genUpdateSql(Tablename='Picture',condition={'Picid':Picid},**data)
     
     def __del__(self):
         '''析构函数'''
@@ -158,26 +179,24 @@ if __name__=='__main__':
 
     db=DataBase()
     
-    # db.dropTable('Picture')
+    db.dropTable('Picture')
+    db.createTable(db.createPic_sql)
     # db.dropTable('Tags')
     # db.createTable(db.createTags_sql)
     # db.dropTable('Tags_Pic')
-    # db.createTable(db.createPic_sql)
     # db.createTable(db.createPic_tags_sql)
-
-    # with open('对照表.csv','r',encoding='utf-8-sig') as f:
-    #     lines=f.read().split('\n')
-    #     for line in lines:
-    #         tagdict={}
-    #         if(len(line.split(','))>=3):
-    #             tagdict['Chiname']=line.split(',')[1]
-    #             tagdict['Gelname']=line.split(',')[2]
-    #             db.genInsertSql('Tags',**tagdict)
+    data={
+    'Picid':'6730018',
+    'local_path':'./pic/6730018.jpg',
+    'master':'0',
+    'delet':'0',
+    'download':'0',
+    'artist':'hiki_niito',
+    'character':'ganyu_(genshin_impact)',
+    'copyright':'genshin_impact',
+    'metadata':'absurdres,highres',
+    'tag':'1girl,ahoge,ass,bangs',
+    'origin_url':'https://img3.gelbooru.com//samples/d3/c0/sample_d3c04b98e118908fc575fc146a44ec6b.jpg'   
+    }
+    db.insertData(**data)
     
-    #db.genInsertSql(Tablename='Tags_Pic',**{'Tagid':'4','Picid':'9114514'})
-    if(res:=db.genSelectSql(Tablename='Tags',target=['Tagid'],**{'Gelname':'hu_tao'})):
-        for line in res:
-            Picid=db.genSelectSql(Tablename='Tags_Pic',target=['Picid'],**{'Tagid':line[0]})
-            print(Picid)
-    else:
-        db.genInsertSql(Tablename='Tags',**{'Gelname':'hu_tao'})
