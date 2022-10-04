@@ -98,7 +98,7 @@ class DataBase():
         '''生成选择的sql语句并执行'''
         base='SELECT {tar} from {Tablename} where {condition}'
         sql_tar=','.join('{}'.format(i) for i in target)
-        sql_condition=' AND '.join("{}='{}'".format(i,j) for i,j in condition.items())
+        sql_condition=' AND '.join("{} = '{}'".format(i,j) for i,j in condition.items())
         
         sql=base.format(tar=sql_tar,Tablename=Tablename,condition=sql_condition)
         result=self.selectTable(sql)
@@ -145,19 +145,24 @@ class DataBase():
                 if(len(line_list)>=3):
                     tagdict['Chiname']=line_list[1]
                     tagdict['Gelname']=line_list[2]
-                    if (db.genSelectSql(Tablename='Tags',target=['*'],**{'Gelname':line_list[2]})):
-                        db.genUpdateSql(Tablename='Tags',condition={'Gelname':line_list[2]},**tagdict)
+                    if (self.genSelectSql(Tablename='Tags',target=['*'],**{'Gelname':line_list[2]})):
+                        self.genUpdateSql(Tablename='Tags',condition={'Gelname':line_list[2]},**tagdict)
                     else:
-                        db.genInsertSql(Tablename='Tags',**tagdict)
+                        self.genInsertSql(Tablename='Tags',**tagdict)
     
     def insertData(self,**data):
         '''在Picture表插入一条新数据'''
-        if(self.genInsertSql('Picture',**data)):
-            tags=data['character'].split(',')
+        if(self.genInsertSql('Picture',**data)):#插入不了就更新
+            tags=data['character'].split(',')#插入成功建立Picid和Tagid的对应关系
             for Gelname in tags:
-                tagids=db.genSelectSql(Tablename='Tags',target=['Tagid'],**{'Gelname':Gelname})
-                for tagid in tagids:
-                    db.genInsertSql(Tablename='Tags_pic',**{'Tagid':tagid[0],'Picid':data['Picid']})
+                tagids=self.genSelectSql(Tablename='Tags',target=['Tagid'],**{'Gelname':Gelname})
+                if(tagids):
+                    for tagid in tagids:
+                        self.genInsertSql(Tablename='Tags_pic',**{'Tagid':tagid[0],'Picid':data['Picid']})
+                else:
+                    self.genInsertSql(Tablename='Tags',**{'Gelname':Gelname})
+                    tagid=self.genSelectSql(Tablename='Tags',target=['Tagid'],**{'Gelname':Gelname})[0][0]
+                    self.genInsertSql(Tablename='Tags_pic',**{'Tagid':tagid,'Picid':data['Picid']})
         else:
             Picid=data.pop('Picid')
             self.genUpdateSql(Tablename='Picture',condition={'Picid':Picid},**data)
@@ -172,10 +177,10 @@ if __name__=='__main__':
     
     db.dropTable('Picture')
     db.createTable(db.createPic_sql)
-    # db.dropTable('Tags')
-    # db.createTable(db.createTags_sql)
-    # db.dropTable('Tags_Pic')
-    # db.createTable(db.createPic_tags_sql)
+    db.dropTable('Tags')
+    db.createTable(db.createTags_sql)
+    db.dropTable('Tags_Pic')
+    db.createTable(db.createPic_tags_sql)
     data={
     'Picid':'6730018',
     'local_path':'./pic/6730018.jpg',
@@ -189,10 +194,11 @@ if __name__=='__main__':
     'tag':'1girl,ahoge,ass,bangs',
     'origin_url':'https://img3.gelbooru.com//samples/d3/c0/sample_d3c04b98e118908fc575fc146a44ec6b.jpg'   
     }
-    db.insertData(**data)
+    #db.insertData(**data)
     data={
     'Picid':'6730018',
     'download':'1',
     }
-    db.insertData(**data)
+    #db.insertData(**data)
+    db.updataTags()
     

@@ -3,6 +3,8 @@ import re
 from time import sleep
 import requests
 import bs4
+import os
+from Gdatabase import *
 class Craw():
 
     def __init__(self):
@@ -59,6 +61,7 @@ class Craw():
         tags=list(set(tags))
         if('?' in tags):tags.remove('?')
         return tags
+    
 
 
         
@@ -67,4 +70,17 @@ class Craw():
 
 if __name__=='__main__':
     c=Craw()
-    print(c.getTags('6730018'))
+    db=DataBase()
+    piclist=db.selectTable('SELECT Picid from Picture')
+    piclist=[str(x[0]) for x in piclist]#已有图片的id列表
+    addict={'master':'0','delet':'0','download':'1'}
+    for root, dirs, files in os.walk(".\\pic",):
+        for name in files:
+            picid=name.split('.')[0]
+            if (picid not in piclist):
+                path=os.path.join(root,name)
+                addict['Picid']=int(picid)
+                addict['local_path']=path
+                tag_dict=c.getTags(name.split('.')[0])
+                combine=dict(addict,**tag_dict)
+                db.insertData(**combine)
