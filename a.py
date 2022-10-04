@@ -1,3 +1,6 @@
+
+
+
 insert_data={
     'Picid':'6730018',
     'local_path':'./pic/6730018.jpg',
@@ -11,5 +14,6 @@ insert_data={
     'tag':'1girl,ahoge,ass,bangs',
     'origin_url':'https://img3.gelbooru.com//samples/d3/c0/sample_d3c04b98e118908fc575fc146a44ec6b.jpg'   
 }
-print(insert_data.pop('Picid'))
-print(insert_data)
+
+id={'1':','.join([])}
+print(id)
