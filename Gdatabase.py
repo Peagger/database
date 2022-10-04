@@ -1,5 +1,7 @@
 import sqlite3
 
+from matplotlib.table import Table
+
 class Data():
     def __init__(self,**dict):
         self.dict=dict   
@@ -21,8 +23,6 @@ class DataBase():
     def __init__(self,db='GelPic.db'):
         self.connection=sqlite3.connect(db)
         self.cur=self.connection.cursor()
-        self.insert_sql=''
-        self.update_sql=''
         self.select_sql='select {tar} from {Tablename} where {attribute} ="{values}"'
         self.select_tagid_gelname='select Tagid from Tags where Gelname ="{values}"'
         self.select_tagid_chiname='select Tagid from Tags where Chiname ="{values}"'
@@ -72,34 +72,44 @@ class DataBase():
             print(e)
             print('删除表失败')
             return 0
+    
     def genInsertSql(self,Tablename,**dicts):
-        '''生成插入的sql语句'''
+        '''生成插入的sql语句并执行'''
         base='INSERT INTO {name} ({key}) VALUES ({value})'
         sql_keys=','.join(['{}'.format(i) for i in list(dicts.keys())])
         sql_values=','.join(["'{}'".format(i) for i in dicts.values()])
         
-        self.insert_sql=base.format(name=Tablename,key=sql_keys,value=sql_values)
+        sql=base.format(name=Tablename,key=sql_keys,value=sql_values)
 
-        if(self.insertTable()):
-            return 1
+        if(self.insertTable(sql)):return 1
         return 0 
     
     def genUpdateSql(self,Tablename,condition:dict,**dicts):
-        '''生成更新的sql语句'''
-        base='update {name} SET {items} where {condition}'
+        '''生成更新的sql语句并执行'''
+        base='UPDATE {name} SET {items} where {condition}'
         sql_items=','.join("{}='{}'".format(i,j) for i,j in dicts.items())
         sql_condition=' AND '.join("{}='{}'".format(i,j)for i,j in condition.items())
         
-        self.update_sql=base.format(name=Tablename,items=sql_items,condition=sql_condition)
+        sql=base.format(name=Tablename,items=sql_items,condition=sql_condition)
         
-        if(self.updataTable()):
-            return 1
+        if(self.updateTable(sql)):return 1
         return 0
     
-    def insertTable(self):
+    def genSelectSql(self,Tablename,target:list,**condition):
+        '''生成选择的sql语句并执行'''
+        base='SELECT {tar} from {Tablename} where {condition}'
+        sql_tar=','.join('{}'.format(i) for i in target)
+        sql_condition=' AND '.join("{}='{}'".format(i,j) for i,j in condition.items())
+        
+        sql=base.format(tar=sql_tar,Tablename=Tablename,condition=sql_condition)
+        result=self.selectTable(sql)
+        if(result):return result
+        return 0
+    
+    def insertTable(self,sql):
         '''插入数据'''
         try:
-            self.cur.execute(self.insert_sql)
+            self.cur.execute(sql)
             self.connection.commit()
             print('插入数据成功')
             return 1
@@ -108,10 +118,10 @@ class DataBase():
             print('插入数据失败')
             return 0
     
-    def updataTable(self):
+    def updateTable(self,sql):
         '''更新数据'''
         try:
-            self.cur.execute(self.update_sql)
+            self.cur.execute(sql)
             self.connection.commit()
             print('更新数据成功')
             return 1
@@ -121,6 +131,7 @@ class DataBase():
             return 0
     
     def selectTable(self,sql):
+        '''查询数据'''
         try:
             self.cur.execute(sql)
             result=self.cur.fetchall()
@@ -129,6 +140,7 @@ class DataBase():
             print(e)
             print('查询失败')
             return 0
+    
     def __del__(self):
         '''析构函数'''
         self.cur.close()
@@ -153,15 +165,19 @@ if __name__=='__main__':
     # db.createTable(db.createPic_sql)
     # db.createTable(db.createPic_tags_sql)
 
-    with open('对照表.csv','r',encoding='utf-8-sig') as f:
-        lines=f.read().split('\n')
-        for line in lines:
-            tagdict={}
-            if(len(line.split(','))>=3):
-                tagdict['Chiname']=line.split(',')[1]
-                tagdict['Gelname']=line.split(',')[2]
-                db.genInsertSql('Tags',**tagdict)
+    # with open('对照表.csv','r',encoding='utf-8-sig') as f:
+    #     lines=f.read().split('\n')
+    #     for line in lines:
+    #         tagdict={}
+    #         if(len(line.split(','))>=3):
+    #             tagdict['Chiname']=line.split(',')[1]
+    #             tagdict['Gelname']=line.split(',')[2]
+    #             db.genInsertSql('Tags',**tagdict)
     
-    # condition={'Tagid':'1','Gelname':'heishushu'}
-    # updata={'Chiname':'黑叔叔'}
-    # db.genUpdateSql('Tags',condition=condition,**updata)
+    #db.genInsertSql(Tablename='Tags_Pic',**{'Tagid':'4','Picid':'9114514'})
+    if(res:=db.genSelectSql(Tablename='Tags',target=['Tagid'],**{'Gelname':'hu_tao'})):
+        for line in res:
+            Picid=db.genSelectSql(Tablename='Tags_Pic',target=['Picid'],**{'Tagid':line[0]})
+            print(Picid)
+    else:
+        db.genInsertSql(Tablename='Tags',**{'Gelname':'hu_tao'})
