@@ -19,7 +19,7 @@ class Data():
 
 class DataBase():
     
-    def __init__(self,db='GelPic.db'):
+    def __init__(self,db='db/GelPic.db'):
         self.connection=sqlite3.connect(db)
         self.cur=self.connection.cursor()
         self.select_sql='select {tar} from {Tablename} where {attribute} ="{values}"'
@@ -112,7 +112,7 @@ class DataBase():
             self.connection.commit()
             return 1
         except Exception as e:
-            print(e)
+            #print(e)
             return 0
     
     def updateTable(self,sql):
@@ -122,7 +122,7 @@ class DataBase():
             self.connection.commit()
             return 1
         except Exception as e:
-            print(e)
+            #print(e)
             return 0
     
     def selectTable(self,sql):
@@ -132,7 +132,7 @@ class DataBase():
             result=self.cur.fetchall()
             return result
         except Exception as e:
-            print(e)
+            #print(e)
             return 0
     
     def updataTags(self):
@@ -168,15 +168,6 @@ class DataBase():
         self.connection.close()
 
 if __name__=='__main__':
-    dict={
-    'artist':'hiki niitto',
-    'character':'甘雨a',    
-    }
-    updatadict={
-    'character':'甘雨,胡桃',
-    'metadata':'highres'
-    }
-
     db=DataBase()
     
     db.dropTable('Picture')
@@ -197,6 +188,11 @@ if __name__=='__main__':
     'metadata':'absurdres,highres',
     'tag':'1girl,ahoge,ass,bangs',
     'origin_url':'https://img3.gelbooru.com//samples/d3/c0/sample_d3c04b98e118908fc575fc146a44ec6b.jpg'   
+    }
+    db.insertData(**data)
+    data={
+    'Picid':'6730018',
+    'download':'1',
     }
     db.insertData(**data)
     
