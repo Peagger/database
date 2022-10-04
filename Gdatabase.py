@@ -1,6 +1,5 @@
 import sqlite3
 
-
 class Data():
     def __init__(self,**dict):
         self.dict=dict   
@@ -23,8 +22,10 @@ class DataBase():
         self.connection=sqlite3.connect(db)
         self.cur=self.connection.cursor()
         self.insert_sql=''
-        self.data=''
+        self.update_sql=''
         self.select_sql='select {tar} from {Tablename} where {attribute} ="{values}"'
+        self.select_tagid_gelname='select Tagid from Tags where Gelname ="{values}"'
+        self.select_tagid_chiname='select Tagid from Tags where Chiname ="{values}"'
         self.createPic_sql='''
                 create table Picture(
                 Picid INTEGER primary key,
@@ -71,22 +72,34 @@ class DataBase():
             print(e)
             print('删除表失败')
             return 0
-    def genInsertSql(self,Tablename,**dict):
+    def genInsertSql(self,Tablename,**dicts):
         '''生成插入的sql语句'''
         base='INSERT INTO {name} ({key}) VALUES ({value})'
-        sql_keys=','.join(['{}'.format(i) for i in list(dict.keys())])
-        sql_values=','.join(['?' for i in range(len(list(dict.keys())))])
+        sql_keys=','.join(['{}'.format(i) for i in list(dicts.keys())])
+        sql_values=','.join(["'{}'".format(i) for i in dicts.values()])
         
-        insert_sql=base.format(name=Tablename,key=sql_keys,value=sql_values)
-        values=tuple(dict.values())
+        self.insert_sql=base.format(name=Tablename,key=sql_keys,value=sql_values)
+
+        if(self.insertTable()):
+            return 1
+        return 0 
+    
+    def genUpdateSql(self,Tablename,condition:dict,**dicts):
+        '''生成更新的sql语句'''
+        base='update {name} SET {items} where {condition}'
+        sql_items=','.join("{}='{}'".format(i,j) for i,j in dicts.items())
+        sql_condition=' AND '.join("{}='{}'".format(i,j)for i,j in condition.items())
         
-        self.insert_sql=insert_sql
-        self.data=values
-        return 1
+        self.update_sql=base.format(name=Tablename,items=sql_items,condition=sql_condition)
+        
+        if(self.updataTable()):
+            return 1
+        return 0
+    
     def insertTable(self):
-        '''无参数,修改对象的sql和data后调用'''
+        '''插入数据'''
         try:
-            self.cur.execute(self.insert_sql,self.data)
+            self.cur.execute(self.insert_sql)
             self.connection.commit()
             print('插入数据成功')
             return 1
@@ -94,14 +107,24 @@ class DataBase():
             print(e)
             print('插入数据失败')
             return 0
+    
+    def updataTable(self):
+        '''更新数据'''
+        try:
+            self.cur.execute(self.update_sql)
+            self.connection.commit()
+            print('更新数据成功')
+            return 1
+        except Exception as e:
+            print(e)
+            print('更新数据失败')
+            return 0
+    
     def selectTable(self,sql):
         try:
             self.cur.execute(sql)
             result=self.cur.fetchall()
-            for row in result:
-                for line in row:
-                    print(line,end=' ')
-            return 1
+            return result
         except Exception as e:
             print(e)
             print('查询失败')
@@ -125,19 +148,20 @@ if __name__=='__main__':
     
     # db.dropTable('Picture')
     # db.dropTable('Tags')
+    # db.createTable(db.createTags_sql)
     # db.dropTable('Tags_Pic')
     # db.createTable(db.createPic_sql)
-    # db.createTable(db.createTags_sql)
     # db.createTable(db.createPic_tags_sql)
 
-    # with open('对照表.csv','r',encoding='utf-8-sig') as f:
-    #     lines=f.read().split('\n')
-    #     for line in lines:
-    #         tagdict={}
-    #         if(len(line.split(','))>=3):
-    #             tagdict['Chiname']=line.split(',')[1]
-    #             tagdict['Gelname']=line.split(',')[2]
-    #             db.genInsertSql('Tags',**tagdict)
-    #             db.insertTable()
-    values='hu_tao_(genshin_impact)'
-    db.selectTable(db.select_sql.format(tar='Tagid',Tablename='Tags',attribute='Gelname',values=values))
+    with open('对照表.csv','r',encoding='utf-8-sig') as f:
+        lines=f.read().split('\n')
+        for line in lines:
+            tagdict={}
+            if(len(line.split(','))>=3):
+                tagdict['Chiname']=line.split(',')[1]
+                tagdict['Gelname']=line.split(',')[2]
+                db.genInsertSql('Tags',**tagdict)
+    
+    # condition={'Tagid':'1','Gelname':'heishushu'}
+    # updata={'Chiname':'黑叔叔'}
+    # db.genUpdateSql('Tags',condition=condition,**updata)
