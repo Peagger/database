@@ -76,7 +76,7 @@ if __name__=='__main__':
     piclist=db.selectTable('SELECT Picid from Picture')
     piclist=[str(x[0]) for x in piclist]#已有图片的id列表
     addict={'master':'0','delet':'0','download':'1'}
-    for root, dirs, files in os.walk(".\\pic",):
+    for root, dirs, files in os.walk(".\\pic"):
         for name in files:
             picid=name.split('.')[0]
             if (picid not in piclist):
