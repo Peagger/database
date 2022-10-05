@@ -5,6 +5,7 @@ import requests
 import bs4
 import os
 from DataBase import *
+import time
 class Craw():
 
     def __init__(self):
@@ -60,8 +61,27 @@ class Craw():
             return tags
         return 0
     
-    
+    def getListSoup(self,tag:str,pid:str):
+        '''生成供解析的soup'''
+        tag=tag.replace(' ','_')
+        params={'page': 'post','s': 'list','tags':tag,'pid':pid}
+        if(response:=self.getResponse(**params)):
+            html=response.text
+            soup=bs4.BeautifulSoup(html,'html.parser')
+            return soup
+        return 0
     def getPicid(self,tag):
+        start=time.time()
+        pidlist=[]
+        for pid in range(0,43,42):
+            soup=self.getListSoup(tag,str(pid))
+            if(soup):
+                html_list=soup.select('article a')
+                html_list=[x['id'][1:] for x in html_list]
+                pidlist+=html_list
+        print()
+        end=time.time()
+        print(end-start)
         pass
     
 
@@ -72,17 +92,4 @@ class Craw():
 
 if __name__=='__main__':
     c=Craw()
-    db=DataBase()
-    piclist=db.selectTable('SELECT Picid from Picture')
-    piclist=[str(x[0]) for x in piclist]#已有图片的id列表
-    addict={'master':'0','delet':'0','download':'1'}
-    for root, dirs, files in os.walk(".\\pic"):
-        for name in files:
-            picid=name.split('.')[0]
-            if (picid not in piclist):
-                path=os.path.join(root,name)
-                addict['Picid']=int(picid)
-                addict['local_path']=path
-                tag_dict=c.getTags(name.split('.')[0])
-                combine=dict(addict,**tag_dict)
-                db.insertData(**combine)
+    c.getPicid('genshin impact')
