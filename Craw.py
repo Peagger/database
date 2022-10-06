@@ -71,18 +71,25 @@ class Craw():
             return soup
         return 0
     def getPicid(self,tag):
-        start=time.time()
-        pidlist=[]
+        '''通过tag获取图片id'''
+        start=time.time()#时间
+        idlist=[]
         for pid in range(0,43,42):
             soup=self.getListSoup(tag,str(pid))
             if(soup):
                 html_list=soup.select('article a')
                 html_list=[x['id'][1:] for x in html_list]
-                pidlist+=html_list
+                idlist+=html_list
         print()
-        end=time.time()
-        print(end-start)
+        end=time.time()#时间
+        print(end-start)#side effect
+        return idlist
+    def makedirs(self,path):
         pass
+        
+    def saveImage(self,path):
+        pass
+        
     
 
 
