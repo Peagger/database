@@ -147,7 +147,7 @@ class DataBase():
                 if(len(line_list)>=3):
                     tagdict['Chiname']=line_list[1]
                     tagdict['Gelname']=line_list[2]
-                    if (self.genSelectSql(Tablename='Tags',target=['*'],**{'Gelname':line_list[2]})):
+                    if (self.genSelectSql(Tablename='Tags',target=['*'],**{'Gelname':line_list[2]})):#能找到同Gelname的更新,不能的插入
                         self.genUpdateSql(Tablename='Tags',condition={'Gelname':line_list[2]},**tagdict)
                     else:
                         self.genInsertSql(Tablename='Tags',**tagdict)

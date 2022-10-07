@@ -8,7 +8,7 @@ from DataBase import *
 import time
 class Craw():
 
-    def __init__(self,tag,imagepath='.\\download'):
+    def __init__(self,tag,imagepath='.\\download',number=500):
         self.db=DataBase()
         self.headers={
             'user-agent':'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:101.0) Gecko/20100101 Firefox/101.0',
@@ -16,8 +16,8 @@ class Craw():
             'referer':'https://gelbooru.com/',
         }
         self.tag=tag
+        self.search_number=number#检索个数
         self.imagecontent=''
-        self.imagename=''
         self.imagepath=imagepath
         self.downloaded=self.db.selectTable('SELECT Picid from Picture WHERE download = "1"')
     
@@ -86,7 +86,7 @@ class Craw():
         '''通过tag获取图片id'''
         start=time.time()#时间
         id_list=[]
-        for pid in range(0,200,42):
+        for pid in range(0,self.search_number,42):
             soup=self.getListSoup(str(pid))
             if(soup):
                 html_list=soup.select('article a')
@@ -101,6 +101,7 @@ class Craw():
         '''创建文件夹'''
         if not os.path.exists(path):
             os.makedirs(path)
+
         
     def saveImage(self,name):
         '''保存图片'''
@@ -108,6 +109,8 @@ class Craw():
         path=os.path.join(self.imagepath,name)
         with open(path,'wb') as f:
             f.write(self.imagecontent)
+            return 1
+        return 0
             
     def downLoad(self):
         '''下载图片'''
@@ -124,6 +127,7 @@ class Craw():
                 try:
                     res=self.getResponse(url=url)
                     insert_data['download']='1'
+                    insert_data['local_path']=os.path.join(self.imagepath,name)
                     self.db.insertData(**insert_data)
                 except:
                     continue
@@ -139,5 +143,5 @@ class Craw():
 
 
 if __name__=='__main__':
-    c=Craw('genshin impact')
+    c=Craw('genshin impact',number=300)
     c.downLoad()
