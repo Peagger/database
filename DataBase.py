@@ -78,18 +78,18 @@ class DataBase():
         '''生成插入的sql语句并执行'''
         base='INSERT INTO {name} ({key}) VALUES ({value})'
         sql_keys=','.join(['{}'.format(i) for i in list(dicts.keys())])
-        sql_values=','.join(["'{}'".format(i) for i in dicts.values()])
+        sql_values=','.join(["'{}'".format(str(i).replace('\'','\'\'')) for i in dicts.values()])
         
         sql=base.format(name=Tablename,key=sql_keys,value=sql_values)
 
-        if(self.insertTable(sql)):return 1
+        if(self.insertTable(sql)):return 1#插入成功返回1
         return 0 
     
     def genUpdateSql(self,Tablename,condition:dict,**dicts):
         '''生成更新的sql语句并执行'''
         base='UPDATE {name} SET {items} where {condition}'
-        sql_items=','.join("{}='{}'".format(i,j) for i,j in dicts.items())
-        sql_condition=' AND '.join("{}='{}'".format(i,j)for i,j in condition.items())
+        sql_items=','.join("{}='{}'".format(i,str(j).replace('\'','\'\'')) for i,j in dicts.items())
+        sql_condition=' AND '.join("{}='{}'".format(i,str(j).replace('\'','\'\''))for i,j in condition.items())
         
         sql=base.format(name=Tablename,items=sql_items,condition=sql_condition)
         
@@ -100,7 +100,7 @@ class DataBase():
         '''生成选择的sql语句并执行'''
         base='SELECT {tar} from {Tablename} where {condition}'
         sql_tar=','.join('{}'.format(i) for i in target)
-        sql_condition=' AND '.join("{} = '{}'".format(i,j) for i,j in condition.items())
+        sql_condition=' AND '.join("{} = '{}'".format(i,str(j).replace('\'','\'\'')) for i,j in condition.items())
         
         sql=base.format(tar=sql_tar,Tablename=Tablename,condition=sql_condition)
         result=self.selectTable(sql)
@@ -114,7 +114,7 @@ class DataBase():
             self.connection.commit()
             return 1
         except Exception as e:
-            #print(e)
+            print(e)
             return 0
     
     def updateTable(self,sql):
@@ -124,7 +124,7 @@ class DataBase():
             self.connection.commit()
             return 1
         except Exception as e:
-            #print(e)
+            print(e)
             return 0
     
     def selectTable(self,sql):
@@ -134,7 +134,7 @@ class DataBase():
             result=self.cur.fetchall()
             return result
         except Exception as e:
-            #print(e)
+            print(e)
             return 0
     
     def updataTags(self):
@@ -155,20 +155,28 @@ class DataBase():
     def insertData(self,**data):
         '''在Picture表插入一条新数据'''
         if(self.genInsertSql('Picture',**data)):#插入不了就更新
-            tags=data['character'].split(',')#插入成功建立Picid和Tagid的对应关系
-            for Gelname in tags:
-                tagids=self.genSelectSql(Tablename='Tags',target=['Tagid'],**{'Gelname':Gelname})
-                if(tagids):
-                    for tagid in tagids:
-                        self.genInsertSql(Tablename='Tags_pic',**{'Tagid':tagid[0],'Picid':data['Picid']})
-                else:
-                    self.genInsertSql(Tablename='Tags',**{'Gelname':Gelname})
-                    tagid=self.genSelectSql(Tablename='Tags',target=['Tagid'],**{'Gelname':Gelname})[0][0]
-                    self.genInsertSql(Tablename='Tags_pic',**{'Tagid':tagid,'Picid':data['Picid']})
+            if(character_list:=data.get('character',0)):#插入的数据含有角色信息就更新Tags_Pic的对应关系
+                tags=character_list.split(',')
+                for Gelname in tags:
+                    tagids=self.genSelectSql(Tablename='Tags',target=['Tagid'],**{'Gelname':Gelname})
+                    if(tagids):
+                        for tagid in tagids:
+                            self.genInsertSql(Tablename='Tags_pic',**{'Tagid':tagid[0],'Picid':data['Picid']})
+                    else:
+                        print(self.genInsertSql(Tablename='Tags',**{'Gelname':Gelname}))
+                        tagid=self.genSelectSql(Tablename='Tags',target=['Tagid'],**{'Gelname':Gelname})
+                        if(tagid):
+                            tagid=tagid[0][0]
+                            self.genInsertSql(Tablename='Tags_pic',**{'Tagid':tagid,'Picid':data['Picid']})
+                        else:
+                            print("插入新tag:{}并更新失败".format(Gelname))
         else:
             Picid=data.pop('Picid')
             self.genUpdateSql(Tablename='Picture',condition={'Picid':Picid},**data)
-    
+    def updateTagPicRelation():
+        #todo 
+        #依据Picture表character的对应关系
+        pass
     def __del__(self):
         '''析构函数'''
         self.cur.close()
@@ -176,31 +184,15 @@ class DataBase():
 
 if __name__=='__main__':
     db=DataBase()
-    
-    db.dropTable('Picture')
-    db.createTable(db.createPic_sql)
-    db.dropTable('Tags')
-    db.createTable(db.createTags_sql)
-    db.dropTable('Tags_Pic')
-    db.createTable(db.createPic_tags_sql)
-    data={
-    'Picid':'6730018',
-    'local_path':'./pic/6730018.jpg',
-    'master':'0',
-    'delet':'0',
-    'download':'0',
-    'artist':'hiki_niito',
-    'character':'ganyu_(genshin_impact)',
-    'copyright':'genshin_impact',
-    'metadata':'absurdres,highres',
-    'tag':'1girl,ahoge,ass,bangs',
-    'origin_url':'https://img3.gelbooru.com//samples/d3/c0/sample_d3c04b98e118908fc575fc146a44ec6b.jpg'   
-    }
-    #db.insertData(**data)
-    data={
-    'Picid':'6730018',
-    'download':'1',
-    }
-    #db.insertData(**data)
-    db.updataTags()
+    '''删表重建'''
+    # db.dropTable('Picture')
+    # db.createTable(db.createPic_sql)
+    # db.dropTable('Tags')
+    # db.createTable(db.createTags_sql)
+    # db.dropTable('Tags_Pic')
+    # db.createTable(db.createPic_tags_sql)
+
+    #db.updataTags()
+    g="ooshio (let's 'ave lunch) (azur lane)"
+    db.genSelectSql('Tags',target=['Chiname'],**{'Gelname':g})
     

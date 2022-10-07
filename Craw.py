@@ -8,7 +8,7 @@ from DataBase import *
 import time
 class Craw():
 
-    def __init__(self,tag,imagepath='.\\download',number=500):
+    def __init__(self,tag='',imagepath='.\\download',number=500):
         self.db=DataBase()
         self.headers={
             'user-agent':'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:101.0) Gecko/20100101 Firefox/101.0',
