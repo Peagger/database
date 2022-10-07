@@ -8,7 +8,7 @@ from DataBase import *
 import time
 class Craw():
 
-    def __init__(self,tag):
+    def __init__(self,tag,imagepath='.\\download'):
         self.db=DataBase()
         self.headers={
             'user-agent':'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:101.0) Gecko/20100101 Firefox/101.0',
@@ -18,7 +18,7 @@ class Craw():
         self.tag=tag
         self.imagecontent=''
         self.imagename=''
-        self.imagepath='.\\download'
+        self.imagepath=imagepath
     
     def getResponse(self,url='https://gelbooru.com/index.php?',sleeptime=1,**params):
         '''获取页面内容'''
@@ -100,10 +100,10 @@ class Craw():
         if not os.path.exists(path):
             os.makedirs(path)
         
-    def saveImage(self):
+    def saveImage(self,name):
         '''保存图片'''
         self.makedirs(self.imagepath)
-        path=os.path.join(self.imagepath,self.imagename)
+        path=os.path.join(self.imagepath,name)
         with open(path,'wb') as f:
             f.write(self.imagecontent)
             
@@ -112,15 +112,15 @@ class Craw():
         list=self.getPicid()
         for id in list:
             if(tags:=self.getTags(id)):
-                
+                #数据库连接
                 url=tags['origin_url']
-                self.imagename=id+'.'+url.split('.')[-1]
+                name=id+'.'+url.split('.')[-1]
                 try:
                     res=self.getResponse(url=url)
                 except:
                     continue
                 self.imagecontent=res.content
-                self.saveImage()
+                self.saveImage(name)
 
         
     
