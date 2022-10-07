@@ -1,12 +1,12 @@
 from DataBase import *
 from Craw import *
 import sys
-class Main():
+class LocalUpdate():
     
     def __init__ (self):
         self.db=DataBase()
         self.craw=Craw()
-        piclist=self.db.selectTable('SELECT Picid from Picture')
+        piclist=self.db.selectTable('SELECT Picid from Picture WHERE download = "1"')
         self.piclist=[str(x[0]) for x in piclist]
         self.addict={'master':'0','delet':'0','download':'1'}
     
@@ -16,11 +16,10 @@ class Main():
                 picid=name.split('.')[0]
                 if (picid not in self.piclist):
                     path=os.path.join(root,name)
-                    self.addict['Picid']=int(picid)
                     self.addict['local_path']=path
                     if(tag_dict:=self.craw.getTags(name.split('.')[0])):
-                        combine=dict(self.addict,**tag_dict)
-                        self.db.insertData(**combine)
+                        insert_data=dict(self.addict,**tag_dict)
+                        self.db.insertData(**insert_data)
                     else:
                         print('tags get failed')
                         pass
@@ -29,5 +28,5 @@ class Main():
 
 
 if __name__=='__main__':
-    m=Main()
+    m=LocalUpdate()
     m.updateDownloaded('.\\pic')

@@ -20,6 +20,8 @@ class Data():
 class DataBase():
     
     def __init__(self,db='db/GelPic.db'):
+        self.predownload_dict={'master':'0','delet':'0','download':'0'}
+        self.download_dict={'master':'0','delet':'0','download':'1'}
         self.connection=sqlite3.connect(db)
         self.cur=self.connection.cursor()
         self.select_sql='select {tar} from {Tablename} where {attribute} ="{values}"'

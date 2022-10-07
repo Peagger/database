@@ -19,6 +19,7 @@ class Craw():
         self.imagecontent=''
         self.imagename=''
         self.imagepath=imagepath
+        self.downloaded=self.db.selectTable('SELECT Picid from Picture WHERE download = "1"')
     
     def getResponse(self,url='https://gelbooru.com/index.php?',sleeptime=1,**params):
         '''获取页面内容'''
@@ -57,6 +58,7 @@ class Craw():
                 masterjs = soup.select('script')[-1].text
                 master_url = re.findall('image\.attr\(\'src\',\'(.+)\'\);\n', masterjs)[0]
                 tags = {
+                    'Picid':id,
                     'artist': ','.join(artist),
                     'character': ','.join(char),
                     'copyright': ','.join(copyright),
@@ -84,7 +86,7 @@ class Craw():
         '''通过tag获取图片id'''
         start=time.time()#时间
         id_list=[]
-        for pid in range(0,43,42):
+        for pid in range(0,200,42):
             soup=self.getListSoup(str(pid))
             if(soup):
                 html_list=soup.select('article a')
@@ -111,12 +113,18 @@ class Craw():
         '''下载图片'''
         list=self.getPicid()
         for id in list:
-            if(tags:=self.getTags(id)):
+            if(id in self.downloaded):#已下载就跳过
+                continue
+            if(tag_dict:=self.getTags(id)):
                 #数据库连接
-                url=tags['origin_url']
+                url=tag_dict['origin_url']
                 name=id+'.'+url.split('.')[-1]
+                insert_data=dict(self.db.predownload_dict,**tag_dict)
+                self.db.insertData(**insert_data)
                 try:
                     res=self.getResponse(url=url)
+                    insert_data['download']='1'
+                    self.db.insertData(**insert_data)
                 except:
                     continue
                 self.imagecontent=res.content
