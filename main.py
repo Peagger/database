@@ -18,9 +18,12 @@ class Main():
                     path=os.path.join(root,name)
                     self.addict['Picid']=int(picid)
                     self.addict['local_path']=path
-                    tag_dict=self.craw.getTags(name.split('.')[0])
-                    combine=dict(self.addict,**tag_dict)
-                    self.db.insertData(**combine)
+                    if(tag_dict:=self.craw.getTags(name.split('.')[0])):
+                        combine=dict(self.addict,**tag_dict)
+                        self.db.insertData(**combine)
+                    else:
+                        print('tags get failed')
+                        pass
         
         
 
