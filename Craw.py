@@ -27,9 +27,10 @@ class Craw():
             response=requests.get(url,headers=self.headers,params=params)
         except Exception as e:
             print(e)
+            return 0
             pass
         sleep(random.randint(0,int(sleeptime))/2)
-        return response if (response) else 0
+        return response 
 
     def getSoup(self,id):
         '''生成供解析的soup'''

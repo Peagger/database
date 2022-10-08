@@ -26,13 +26,13 @@ class LocalUpdate():
                     continue
                 if(not picid.isdigit()):#不是纯数字,去除
                     continue
-                if(picid<'1000'):#剔除不是G站图源的图片
+                if(int(picid)<100000):#剔除不是G站图源的图片
                     continue
                 if(format not in self.accepted_format):#不是指定格式就跳过
                     continue
                 if (picid not in self.piclist):
                     path=os.path.join(root,file)
-                    insert_data=self.exist_add_dict.copy()#untested
+                    insert_data=self.exist_add_dict.copy()
                     insert_data['local_path']=path
                     if(tag_dict:=self.craw.getTags(picid)):
                         insert_data=dict(insert_data,**tag_dict)
@@ -63,6 +63,7 @@ if __name__=='__main__':
     m=LocalUpdate()
     #m.updateDownloaded('.\\pic')
     #m.updateTxt()
+    #m.updateDownloaded("D:\\Users\\admin\Desktop\\机器人\\Yunzai-Bot\plugins\\miao-plugin\\resources\\character-img\\云堇")
     m.updateDownloaded('D:\\Users\\admin\\Desktop\\100日チャレンジ\\day7(allinone)\\pic')
     m.updateDownloaded('D:\\Users\\admin\\Desktop\\100日チャレンジ\\day7(allinone)\\genshin_impact')
     m.updateDownloaded('D:\\Users\\admin\\Desktop\\100日チャレンジ\\day7(allinone)\\honkai_impact_3rd')

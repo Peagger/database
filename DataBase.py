@@ -163,7 +163,7 @@ class DataBase():
                         for tagid in tagids:
                             self.genInsertSql(Tablename='Tags_pic',**{'Tagid':tagid[0],'Picid':data['Picid']})
                     else:
-                        print(self.genInsertSql(Tablename='Tags',**{'Gelname':Gelname}))
+                        self.genInsertSql(Tablename='Tags',**{'Gelname':Gelname})
                         tagid=self.genSelectSql(Tablename='Tags',target=['Tagid'],**{'Gelname':Gelname})
                         if(tagid):
                             tagid=tagid[0][0]
@@ -185,14 +185,11 @@ class DataBase():
 if __name__=='__main__':
     db=DataBase()
     '''删表重建'''
-    # db.dropTable('Picture')
-    # db.createTable(db.createPic_sql)
-    # db.dropTable('Tags')
-    # db.createTable(db.createTags_sql)
-    # db.dropTable('Tags_Pic')
-    # db.createTable(db.createPic_tags_sql)
+    db.dropTable('Picture')
+    db.createTable(db.createPic_sql)
+    db.dropTable('Tags')
+    db.createTable(db.createTags_sql)
+    db.dropTable('Tags_Pic')
+    db.createTable(db.createPic_tags_sql)
 
-    #db.updataTags()
-    g="ooshio (let's 'ave lunch) (azur lane)"
-    db.genSelectSql('Tags',target=['Chiname'],**{'Gelname':g})
-    
+    db.updataTags()
