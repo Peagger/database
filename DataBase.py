@@ -114,7 +114,7 @@ class DataBase():
             self.connection.commit()
             return 1
         except Exception as e:
-            print(e)
+            #print(e)
             return 0
     
     def updateTable(self,sql):

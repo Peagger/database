@@ -8,13 +8,13 @@ import os.path as op
 root_dir=os.path.dirname(os.path.realpath(__file__))
 os.chdir(root_dir)
 class ClassifyPic():
-    def __init__(self,path='pic'):
+    def __init__(self,filenames,path='pic',savedir='classified'):
         self.resize=0.6
         self.hight=1600*self.resize
         self.width=2560*self.resize
         self.image_list=os.listdir(op.join(root_dir,path))
         self.path=path
-        self.savedir='classified'
+        self.savedir=savedir
         self.kind=len(filenames)
         self.filenames=filenames
         self.record=[]#记录执行的操作
@@ -26,7 +26,7 @@ class ClassifyPic():
             os.makedirs(os.path.join(root_dir,path,filename))
     def makeResultDirs(self):
         for i in range(0,self.kind):
-            self.makeDir(path=self.savedir,filename=filenames[i])
+            self.makeDir(path=self.savedir,filename=self.filenames[i])
     
     def showimage(self):
         '''显示'''
@@ -94,9 +94,9 @@ class ClassifyPic():
                     continue
 
 
-filenames=['1','2','3']
+
 if __name__=='__main__':
-    classify=ClassifyPic(path='genshin_impact')
+    classify=ClassifyPic(filenames=['1','2','3'],path='genshin impact')
     classify.makeResultDirs()
     classify.showimage()
     #print(classify.image_list)

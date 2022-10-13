@@ -76,7 +76,7 @@ class Craw():
     
     def getListSoup(self,pid:str):
         '''生成供解析的soup'''
-        tag=self.tag.replace(' ','_')
+        tag=' '.join(tag.replace(' ','_') for tag in self.tag)
         params={'page': 'post','s': 'list','tags':tag,'pid':pid}
         if(response:=self.getResponse(**params)):
             html=response.text
@@ -95,7 +95,7 @@ class Craw():
                 id_list+=html_list
         print()
         end=time.time()#时间
-        print('{}张图片信息,耗时:{:.2f}s'.format(len(id_list),end-start))#side effect
+        print('获取{}张图片信息,耗时:{:.2f}s'.format(len(id_list),end-start))#side effect
         return id_list
     
     def makedirs(self,path):
@@ -144,5 +144,5 @@ class Craw():
 
 
 if __name__=='__main__':
-    c=Craw('genshin impact',number=300)
+    c=Craw(['hiki niito','genshin impact'],number=300)
     c.downLoad()

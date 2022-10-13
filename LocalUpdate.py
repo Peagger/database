@@ -64,10 +64,6 @@ if __name__=='__main__':
     #m.updateDownloaded('.\\pic')
     #m.updateTxt()
     #m.updateDownloaded("D:\\Users\\admin\Desktop\\机器人\\Yunzai-Bot\plugins\\miao-plugin\\resources\\character-img\\云堇")
-    m.updateDownloaded('D:\\Users\\admin\\Desktop\\100日チャレンジ\\day7(allinone)\\pic')
-    m.updateDownloaded('D:\\Users\\admin\\Desktop\\100日チャレンジ\\day7(allinone)\\genshin_impact')
-    m.updateDownloaded('D:\\Users\\admin\\Desktop\\100日チャレンジ\\day7(allinone)\\honkai_impact_3rd')
-    m.updateDownloaded('D:\\Users\\admin\\Desktop\\100日チャレンジ\\day7(allinone)\\azur_lane')
-    m.updateDownloaded('D:\\Users\\admin\Desktop\\机器人\\Yunzai-Bot\\plugins\miao-plugin\\resources\\character-img')
+    m.updateDownloaded('./genshin impact')
 
 

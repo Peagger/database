@@ -4,3 +4,5 @@ pic.db
 Demo1.py
 download/
 txt/
+*.db
+*.jpg
