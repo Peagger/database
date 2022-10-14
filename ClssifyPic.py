@@ -8,8 +8,8 @@ import os.path as op
 root_dir=os.path.dirname(os.path.realpath(__file__))
 os.chdir(root_dir)
 class ClassifyPic():
-    def __init__(self,filenames,path='pic',savedir='classified'):
-        self.resize=0.6
+    def __init__(self,filenames,resize=0.6,path='pic',savedir='classified'):
+        self.resize=resize
         self.hight=1600*self.resize
         self.width=2560*self.resize
         self.image_list=os.listdir(op.join(root_dir,path))
@@ -69,7 +69,7 @@ class ClassifyPic():
             print('当前输入: ',pressedKey,pressedKey&0xff)
 
             if (pressedKey==-1)or(pressedKey&0xff==27):break
-            if (pressedKey in leftkeys):
+            if (pressedKey in leftkeys):#撤回
                 if(len(self.record)>0):
                     act=self.record.pop()
                     i=(i-1+length)%length
@@ -96,7 +96,7 @@ class ClassifyPic():
 
 
 if __name__=='__main__':
-    classify=ClassifyPic(filenames=['1','2','3'],path='genshin impact')
+    classify=ClassifyPic(filenames=['1','2','3'],path='download')
     classify.makeResultDirs()
     classify.showimage()
     #print(classify.image_list)
