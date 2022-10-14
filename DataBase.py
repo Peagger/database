@@ -40,7 +40,8 @@ class DataBase():
                 metadata text,
                 tag text,
                 origin_url text,
-                master_url text)
+                master_url text,
+                green text default 0)
     '''
         self.createTags_sql='''
                 create table Tags(
