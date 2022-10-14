@@ -57,13 +57,27 @@ class LocalUpdate():
                     insert_data['Picid']=id
                     self.db.insertData(**insert_data)
         
-
+    def updatePicPath(self,path):
+        '''数据库存的目录不存在就更新'''
+        for root, dirs, files in os.walk(path):
+            # picpath=os.path.join(path,root,)
+            for file in files:
+                picid=file.split('.')[0]
+                realpath=os.path.join(root,file)
+                dbpath=self.db.genSelectSql(Tablename='Picture',target=['local_path'],**{'Picid':picid})[0][0]
+                if(os.path.exists(dbpath)):
+                    continue
+                self.db.genUpdateSql(Tablename='Picture',condition={'Picid':picid},**{'local_path':realpath})
+                # print(dbpath[0][0])
+                # print(realpath)
+                #print(os.path.join(root,file))
 
 if __name__=='__main__':
     m=LocalUpdate()
     #m.updateDownloaded('.\\pic')
     #m.updateTxt()
     #m.updateDownloaded("D:\\Users\\admin\Desktop\\机器人\\Yunzai-Bot\plugins\\miao-plugin\\resources\\character-img\\云堇")
-    m.updateDownloaded('./genshin impact')
+    #m.updateDownloaded('.\\download')
+    m.updatePicPath('.\\download')
 
 
