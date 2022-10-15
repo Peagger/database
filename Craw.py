@@ -18,7 +18,7 @@ class Craw():
         self.tag=tag
         self.search_number=number#检索个数
         self.imagecontent=''
-        self.imagepath=imagepath
+        self.imagepath=os.path.join(imagepath,tag)
         self.downloaded=self.db.selectTable('SELECT Picid from Picture WHERE download = "1"')
     
     def getResponse(self,url='https://gelbooru.com/index.php?',sleeptime=1,**params):
@@ -113,11 +113,11 @@ class Craw():
             return 1
         return 0
             
-    def downLoad(self):
+    def downLoad(self,default=True):
         '''下载图片'''
         list=self.getPicid()
         for id in list:
-            if(id in self.downloaded):#已下载就跳过
+            if(id in self.downloaded and default):#已下载就跳过
                 continue
             if(tag_dict:=self.getTags(id)):
                 #数据库连接

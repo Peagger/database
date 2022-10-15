@@ -1,5 +1,5 @@
 import sqlite3
-
+import os
 
 class Data():
     def __init__(self,**dict):
@@ -20,6 +20,7 @@ class Data():
 class DataBase():
     
     def __init__(self,db='db/GelPic.db'):
+        self.root_dir=os.path.dirname(os.path.realpath(__file__))           #数据库路径
         self.predownload_dict={'master':'0','delet':'0','download':'0'}
         self.download_dict={'master':'0','delet':'0','download':'1'}
         self.connection=sqlite3.connect(db)
