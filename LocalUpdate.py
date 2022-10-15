@@ -6,6 +6,7 @@ class LocalUpdate():
     def __init__ (self):
         self.db=DataBase()
         self.craw=Craw()
+        self.realpath=os.path.dirname(os.path.realpath(__file__))
         piclist=self.db.selectTable('SELECT Picid from Picture WHERE download = "1" AND delet = "0"')
         self.piclist=[str(x[0]) for x in piclist]
         piclist=self.db.selectTable('SELECT Picid from Picture WHERE download = "1"')
@@ -14,7 +15,7 @@ class LocalUpdate():
         self.txt_add_dict={'master':'0','delet':'1','download':'1'}#默认已经删掉了
         self.accepted_format=['jpg','png','jpeg','gif']
     
-    def updateDownloaded(self,path):
+    def updateDownloaded(self,path,default=1):#default为0为涩图
         '''将一个dir下的全部图片计入数据库'''
         for root, dirs, files in os.walk(path):
             for file in files:
@@ -34,6 +35,7 @@ class LocalUpdate():
                     path=os.path.join(root,file)
                     insert_data=self.exist_add_dict.copy()
                     insert_data['local_path']=path
+                    if default:insert_data['green']='1'
                     if(tag_dict:=self.craw.getTags(picid)):
                         insert_data=dict(insert_data,**tag_dict)
                         self.db.insertData(**insert_data)
@@ -58,12 +60,12 @@ class LocalUpdate():
                     self.db.insertData(**insert_data)
         
     def updatePicPath(self,path):
-        '''数据库存的目录不存在就更新'''
+        '''更新图片路径'''
         for root, dirs, files in os.walk(path):
             # picpath=os.path.join(path,root,)
             for file in files:
                 picid=file.split('.')[0]
-                realpath=os.path.join(root,file)
+                realpath=os.path.join(self.realpath,root,file)
                 dbpath=self.db.genSelectSql(Tablename='Picture',target=['local_path'],**{'Picid':picid})[0][0]
                 if(os.path.exists(dbpath)):
                     continue
@@ -73,11 +75,12 @@ class LocalUpdate():
                 #print(os.path.join(root,file))
 
 if __name__=='__main__':
+    root_dir=os.path.dirname(os.path.realpath(__file__))
     m=LocalUpdate()
     #m.updateDownloaded('.\\pic')
     #m.updateTxt()
     #m.updateDownloaded("D:\\Users\\admin\Desktop\\机器人\\Yunzai-Bot\plugins\\miao-plugin\\resources\\character-img\\云堇")
     #m.updateDownloaded('.\\download')
-    m.updatePicPath('.\\download')
+    m.updateDownloaded(os.path.join(root_dir,'download'))
 
 

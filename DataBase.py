@@ -179,6 +179,46 @@ class DataBase():
         #todo 
         #依据Picture表character的对应关系
         pass
+    def reCreateTables(self):
+        '''删表重建'''
+        self.dropTable('Picture')
+        self.createTable(self.createPic_sql)
+        self.dropTable('Tags')
+        self.createTable(self.createTags_sql)
+        self.dropTable('Tags_Pic')
+        self.createTable(self.createPic_tags_sql)
+    def getAllName(self):
+        '''获取所有中文id'''
+        name_list=self.selectTable('SELECT Chiname from Tags')
+        name=[id[0] for id in name_list]
+        return name
+    def getPathByChiname(self,name):
+        '''通过中文id获取图片路径列表'''
+        imageid=[]
+        pathlist=[]
+        tagid=[]
+        tagid_list=self.genSelectSql(Tablename='Tags',target=['Tagid'],**{'Chiname':name})
+        if(tagid_list):
+            tagid=[id[0]for id in tagid_list]
+        for tag in tagid:
+            pic_list=self.genSelectSql(Tablename='Tags_Pic',target=['Picid'],**{'Tagid':tag})
+            if pic_list:
+                pic=[id[0]for id in pic_list]
+                imageid+=pic
+        for image in imageid:
+            path_list=self.genSelectSql(Tablename='Picture',target=['local_path'],**{'Picid':image})
+            if path_list:
+                pathlist.append(path_list[0][0])
+        return pathlist
+    
+    def getAllPath(self):
+        imageid=[]
+        pathlist=[]
+        tagid=[]
+        tagid_list=self.selectTable('Select local_path from Picture where download=1 and delet=0')
+        if(tagid_list):
+            tagid=[id[0]for id in tagid_list]
+        return tagid
     def __del__(self):
         '''析构函数'''
         self.cur.close()
@@ -186,12 +226,6 @@ class DataBase():
 
 if __name__=='__main__':
     db=DataBase()
-    '''删表重建'''
-    db.dropTable('Picture')
-    db.createTable(db.createPic_sql)
-    db.dropTable('Tags')
-    db.createTable(db.createTags_sql)
-    db.dropTable('Tags_Pic')
-    db.createTable(db.createPic_tags_sql)
-
+    #db.reCreateTables()
     db.updataTags()
+    print(db.getAllPath())

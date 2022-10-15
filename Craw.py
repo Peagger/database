@@ -8,7 +8,7 @@ from DataBase import *
 import time
 class Craw():
 
-    def __init__(self,tag='',imagepath='.\\download',number=500):
+    def __init__(self,tag='',number=500,imagepath='download'):
         self.db=DataBase()
         self.headers={
             'user-agent':'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:101.0) Gecko/20100101 Firefox/101.0',
@@ -18,7 +18,7 @@ class Craw():
         self.tag=tag
         self.search_number=number#检索个数
         self.imagecontent=''
-        self.imagepath=os.path.join(imagepath,tag)
+        self.imagepath=imagepath
         self.downloaded=self.db.selectTable('SELECT Picid from Picture WHERE download = "1"')
     
     def getResponse(self,url='https://gelbooru.com/index.php?',sleeptime=1,**params):
@@ -108,10 +108,12 @@ class Craw():
         '''保存图片'''
         self.makedirs(self.imagepath)
         path=os.path.join(self.imagepath,name)
-        with open(path,'wb') as f:
-            f.write(self.imagecontent)
-            return 1
-        return 0
+        try:
+            with open(path,'wb') as f:
+                f.write(self.imagecontent)
+                return 1
+        except:
+            return 0
             
     def downLoad(self,default=True):
         '''下载图片'''
@@ -125,7 +127,7 @@ class Craw():
                 name=id+'.'+url.split('.')[-1]
                 insert_data=dict(self.db.predownload_dict,**tag_dict)
                 self.db.insertData(**insert_data)
-                try:
+                try:#尝试下载
                     res=self.getResponse(url=url)
                     insert_data['download']='1'
                     insert_data['local_path']=os.path.join(self.imagepath,name)
@@ -144,5 +146,6 @@ class Craw():
 
 
 if __name__=='__main__':
-    c=Craw(['hiki niito','genshin impact'],number=300)
-    c.downLoad()
+    root_dir=os.path.dirname(os.path.realpath(__file__))
+    c=Craw(['pottsness','lumine_(genshin_impact)'],number=300,imagepath=os.path.join(root_dir,'download'))
+    c.downLoad(default=False)
