@@ -226,6 +226,6 @@ class DataBase():
 
 if __name__=='__main__':
     db=DataBase()
-    #db.reCreateTables()
+    db.reCreateTables()
     db.updataTags()
-    print(db.getAllPath())
+    #print(db.getAllPath())

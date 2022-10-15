@@ -7,8 +7,8 @@ import os
 from DataBase import *
 import time
 class Craw():
-
-    def __init__(self,tag='',number=500,imagepath='download'):
+    root_dir=os.path.dirname(os.path.realpath(__file__))
+    def __init__(self,tag='',number=500,imagepath=os.path.join(root_dir,'download')):
         self.db=DataBase()
         self.headers={
             'user-agent':'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:101.0) Gecko/20100101 Firefox/101.0',
@@ -147,5 +147,5 @@ class Craw():
 
 if __name__=='__main__':
     root_dir=os.path.dirname(os.path.realpath(__file__))
-    c=Craw(['pottsness','lumine_(genshin_impact)'],number=300,imagepath=os.path.join(root_dir,'download'))
+    c=Craw(['pottsness','lumine_(genshin_impact)'],number=300)
     c.downLoad(default=False)
