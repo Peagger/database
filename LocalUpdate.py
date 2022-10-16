@@ -1,3 +1,4 @@
+import shutil
 from DataBase import *
 from Craw import *
 import sys
@@ -41,6 +42,7 @@ class LocalUpdate():
                         self.db.insertData(**insert_data)
                     else:
                         print('IN FUNCTION updateDownloaded():{}tags get failed'.format(picid))
+                        shutil.move(os.path.join(root,file),'err')
                         pass
     
     def updateTxt(self,path='.//txt'):
@@ -82,5 +84,6 @@ if __name__=='__main__':
     #m.updateDownloaded("D:\\Users\\admin\Desktop\\机器人\\Yunzai-Bot\plugins\\miao-plugin\\resources\\character-img\\云堇")
     #m.updateDownloaded('.\\download')
     m.updateDownloaded(os.path.join(root_dir,'Pictures'))
+    m.updateTxt()
 
 

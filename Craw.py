@@ -69,8 +69,8 @@ class Craw():
                     'master_url': master_url
                 }
                 return tags
-            except:
-                #print(Exception)
+            except Exception as e:
+                #print(e)
                 pass
         return 0
     
@@ -115,11 +115,11 @@ class Craw():
         except:
             return 0
             
-    def downLoad(self,default=True):
+    def downLoad(self,insert=True):
         '''下载图片'''
         list=self.getPicid()
         for id in list:
-            if(id in self.downloaded and default):#已下载就跳过
+            if(id in self.downloaded and insert):#已下载就跳过
                 continue
             if(tag_dict:=self.getTags(id)):
                 #数据库连接
@@ -131,7 +131,8 @@ class Craw():
                     res=self.getResponse(url=url)
                     insert_data['download']='1'
                     insert_data['local_path']=os.path.join(self.imagepath,name)
-                    self.db.insertData(**insert_data)
+                    if(insert):
+                        self.db.insertData(**insert_data)
                 except:
                     continue
                 self.imagecontent=res.content
@@ -147,5 +148,5 @@ class Craw():
 
 if __name__=='__main__':
     root_dir=os.path.dirname(os.path.realpath(__file__))
-    c=Craw(['pottsness','lumine_(genshin_impact)'],number=300)
-    c.downLoad(default=False)
+    c=Craw(['eula_(genshin_impact)'],number=300)
+    c.downLoad()
