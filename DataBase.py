@@ -219,6 +219,15 @@ class DataBase():
         if(tagid_list):
             tagid=[id[0]for id in tagid_list]
         return tagid
+    
+    def getPathBynames(self,name_list):
+        pathlist=[]
+        for name in name_list:
+            pathlist.append(self.getPathByChiname(name))
+        path=pathlist[0]
+        for i in pathlist:
+            path=list(set(path)&set(i))
+        return path
     def __del__(self):
         '''析构函数'''
         self.cur.close()
@@ -226,6 +235,8 @@ class DataBase():
 
 if __name__=='__main__':
     db=DataBase()
-    db.reCreateTables()
-    db.updataTags()
+    #db.reCreateTables()
+    #db.updataTags()
     #print(db.getAllPath())
+    print(db.getPathBynames(['莫娜','荧']))
+
