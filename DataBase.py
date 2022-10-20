@@ -107,7 +107,7 @@ class DataBase():
         sql=base.format(tar=sql_tar,Tablename=Tablename,condition=sql_condition)
         result=self.selectTable(sql)
         if(result):return result
-        return 0
+        return []
     
     def insertTable(self,sql):
         '''插入数据'''
@@ -192,12 +192,14 @@ class DataBase():
         name_list=self.selectTable('SELECT Chiname from Tags')
         name=[id[0] for id in name_list]
         return name
-    def getPathByChiname(self,name):
-        '''通过中文id获取图片路径列表'''
+    def getPathByname(self,name):
+        '''通过id获取图片路径列表'''
         imageid=[]
         pathlist=[]
         tagid=[]
-        tagid_list=self.genSelectSql(Tablename='Tags',target=['Tagid'],**{'Chiname':name})
+        tagid_list1=self.genSelectSql(Tablename='Tags',target=['Tagid'],**{'Chiname':name})
+        tagid_list2=self.genSelectSql(Tablename='Tags',target=['Tagid'],**{'Gelname':name})
+        tagid_list=list(set(tagid_list1)|set(tagid_list2))
         if(tagid_list):
             tagid=[id[0]for id in tagid_list]
         for tag in tagid:
@@ -223,11 +225,27 @@ class DataBase():
     def getPathBynames(self,name_list):
         pathlist=[]
         for name in name_list:
-            pathlist.append(self.getPathByChiname(name))
+            pathlist.append(self.getPathByname(name))
         path=pathlist[0]
         for i in pathlist:
             path=list(set(path)&set(i))
         return path
+    
+    def printGelwithoutChi(self):
+        '''打印没有中文名的tag'''
+        gelname=self.selectTable('Select Gelname from Tags where Chiname is NULL')
+        gelname=[x[0] for x in gelname]
+        for i in gelname:
+            print(i,end=',')
+    def getTagList(self):
+        tagids=self.selectTable('Select * from Tags')
+        tag_num=[]
+        for tagid in tagids:
+            id=tagid[0]
+            res=self.selectTable('Select * from Tags_Pic where Tagid = {}'.format(id))
+            tag_num.append([tagid[2],tagid[1],len(res)])
+        tag_num.sort(reverse=True,key=lambda x:x[2])
+        return tag_num
     def __del__(self):
         '''析构函数'''
         self.cur.close()
@@ -238,5 +256,5 @@ if __name__=='__main__':
     #db.reCreateTables()
     #db.updataTags()
     #print(db.getAllPath())
-    print(db.getPathBynames(['莫娜','荧']))
-
+    print(db.getPathByname('sayu (genshin impact)'))
+    print(len(db.getPathByname('sayu (genshin impact)')))

@@ -84,6 +84,5 @@ if __name__=='__main__':
     #m.updateDownloaded("D:\\Users\\admin\Desktop\\机器人\\Yunzai-Bot\plugins\\miao-plugin\\resources\\character-img\\云堇")
     #m.updateDownloaded('.\\download')
     m.updateDownloaded(os.path.join(root_dir,'Pictures'),default='1')
-    m.updateTxt()
 
 
