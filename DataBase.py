@@ -214,8 +214,6 @@ class DataBase():
         return pathlist
     
     def getAllPath(self):
-        imageid=[]
-        pathlist=[]
         tagid=[]
         tagid_list=self.selectTable('Select local_path from Picture where download=1 and delet=0')
         if(tagid_list):
@@ -233,10 +231,15 @@ class DataBase():
     
     def printGelwithoutChi(self):
         '''打印没有中文名的tag'''
-        gelname=self.selectTable('Select Gelname from Tags where Chiname is NULL')
-        gelname=[x[0] for x in gelname]
-        for i in gelname:
-            print(i,end=',')
+        tagids=self.selectTable('Select * from Tags where Chiname is NULL')
+        tag_num=[]
+        for tagid in tagids:
+            id=tagid[0]
+            res=self.selectTable('Select * from Tags_Pic where Tagid = {}'.format(id))
+            tag_num.append([tagid[1],len(res)])
+        tag_num.sort(reverse=True,key=lambda x:x[1])
+        for tag in tag_num:
+            print(tag[0],end=',')
     def getTagList(self):
         tagids=self.selectTable('Select * from Tags')
         tag_num=[]
@@ -256,5 +259,5 @@ if __name__=='__main__':
     #db.reCreateTables()
     #db.updataTags()
     #print(db.getAllPath())
-    print(db.getPathByname('sayu (genshin impact)'))
-    print(len(db.getPathByname('sayu (genshin impact)')))
+    db.updataTags()
+    db.printGelwithoutChi()
