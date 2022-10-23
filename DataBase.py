@@ -208,7 +208,7 @@ class DataBase():
                 pic=[id[0]for id in pic_list]
                 imageid+=pic
         for image in imageid:
-            path_list=self.genSelectSql(Tablename='Picture',target=['local_path'],**{'Picid':image})
+            path_list=self.genSelectSql(Tablename='Picture',target=['local_path'],**{'Picid':image,'delet':'0','download':'1'})
             if path_list:
                 pathlist.append(path_list[0][0])
         return pathlist

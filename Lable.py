@@ -25,7 +25,6 @@ class Lable():
         self.craw=Craw()
         self.Update=LocalUpdate()
 
-    
     def showimage(self):
         '''显示'''
         leftkeys = (81, 110, 65361, 2424832)
@@ -74,11 +73,12 @@ class Lable():
             insert_data={'Picid':image_list[i].split('.')[0],'delet':'0','green':'0'}
             if (pressedKey in leftkeys):#撤回
                 if(len(self.record)>0):
-                    act=self.record.pop()
+                    act=self.record.pop()#先入先出
                     i=(i-1+length)%length
                     if(act[0]==-1):
                         continue
                     else:
+                        i=act[0]
                         self.movedpic.remove(act[0])
                         insert_data['Picid']=image_list[act[0]].split('.')[0]
                         insert_data['local_path']=op.join(act[2],image_list[act[0]])
@@ -101,20 +101,34 @@ class Lable():
                 self.db.insertData(**insert_data)
                 continue
             if(pressedKey&0xff==ord(str(2))):
-                shutil.move(image_path,self.savedir)
-                self.movedpic.append(i)
-                self.record.append([i,op.join(root_dir,self.savedir,image_list[i]),op.join(root_dir,self.path)])
-                insert_data['local_path']=op.join(root_dir,self.savedir,image_list[i])
-                self.db.insertData(**insert_data)
-                continue
+                try:
+                    shutil.move(image_path,self.savedir)
+                    print(image_path,self.savedir)
+                except:
+                    os.remove(image_path)
+                    print('重复,删除')
+                else:
+                    self.record.append([i,op.join(root_dir,self.savedir,image_list[i]),op.join(root_dir,self.path)])
+                    insert_data['local_path']=op.join(root_dir,self.savedir,image_list[i])
+                    self.db.insertData(**insert_data)
+                finally:
+                    self.movedpic.append(i)
+                    continue
             if(pressedKey&0xff==ord(str(1))):   #green=1
-                shutil.move(image_path,self.savedir)
-                self.movedpic.append(i)
-                self.record.append([i,op.join(root_dir,self.savedir,image_list[i]),op.join(root_dir,self.path)])
-                insert_data['green']='1'
-                insert_data['local_path']=op.join(root_dir,self.savedir,image_list[i])
-                self.db.insertData(**insert_data)
-                continue
+                try:
+                    shutil.move(image_path,self.savedir)
+                    print(image_path,self.savedir)
+                except:
+                    os.remove(image_path)
+                    print('重复,删除')
+                else:
+                    self.record.append([i,op.join(root_dir,self.savedir,image_list[i]),op.join(root_dir,self.path)])
+                    insert_data['green']='1'
+                    insert_data['local_path']=op.join(root_dir,self.savedir,image_list[i])
+                    self.db.insertData(**insert_data)
+                finally:
+                    self.movedpic.append(i)
+                    continue
 
 if __name__=='__main__':
     classify=Lable()
