@@ -16,10 +16,11 @@ class Craw():
             'referer':'https://gelbooru.com/',
         }
         self.tag=tag
-        self.search_number=number#检索个数
+        self.download_num=number#下载个数
         self.imagecontent=''
         self.imagepath=imagepath
-        self.downloaded=self.db.selectTable('SELECT Picid from Picture WHERE download = "1"')
+        downloaded=self.db.selectTable('SELECT Picid from Picture WHERE download = "1"')
+        self.downloaded=[x[0] for x in downloaded]
     
     def getResponse(self,url='https://gelbooru.com/index.php?',sleeptime=1,**params):
         '''获取页面内容'''
@@ -87,11 +88,13 @@ class Craw():
         '''通过tag获取图片id'''
         start=time.time()#时间
         id_list=[]
-        for pid in range(0,self.search_number,42):
+        pidmax=20000
+        for pid in range(0,pidmax,42):
             soup=self.getListSoup(str(pid))
             if(soup):
                 html_list=soup.select('article a')
                 html_list=[x['id'][1:] for x in html_list]
+                if(len(html_list)==0):break
                 id_list+=html_list
         print()
         end=time.time()#时间
@@ -118,8 +121,9 @@ class Craw():
     def downLoad(self,insert=True):
         '''下载图片'''
         list=self.getPicid()
+        count=0
         for id in list:
-            if(id in self.downloaded and insert):#已下载就跳过
+            if(int(id) in self.downloaded and insert):#已下载就跳过
                 continue
             if(tag_dict:=self.getTags(id)):
                 #数据库连接
@@ -131,12 +135,14 @@ class Craw():
                     res=self.getResponse(url=url)
                     insert_data['download']='1'
                     insert_data['local_path']=os.path.join(self.imagepath,name)
+                    count+=1
                     if(insert):
                         self.db.insertData(**insert_data)
                 except:
                     continue
                 self.imagecontent=res.content
                 self.saveImage(name)
+                if(count>=self.download_num):break
 
         
     
@@ -148,5 +154,5 @@ class Craw():
 
 if __name__=='__main__':
     root_dir=os.path.dirname(os.path.realpath(__file__))
-    c=Craw(['eula_(genshin_impact)'],number=300)
+    c=Craw(['melailai'],number=200)
     c.downLoad()

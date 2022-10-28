@@ -259,5 +259,5 @@ if __name__=='__main__':
     #db.reCreateTables()
     #db.updataTags()
     #print(db.getAllPath())
-    db.updataTags()
-    db.printGelwithoutChi()
+    # db.updataTags()
+    # db.printGelwithoutChi()
