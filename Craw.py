@@ -1,14 +1,16 @@
 import random
 import re
 from time import sleep
+from typing import List
 import requests
 import bs4
 import os
 from DataBase import *
+from .data import artistlist,artistlist_len
 import time
 class Craw():
     root_dir=os.path.dirname(os.path.realpath(__file__))
-    def __init__(self,tag='',number=500,imagepath=os.path.join(root_dir,'download')):
+    def __init__(self,tag='',number=500,imagepath=os.path.join(root_dir,'download'),searchnum=20000):
         self.db=DataBase()
         self.headers={
             'user-agent':'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:101.0) Gecko/20100101 Firefox/101.0',
@@ -21,6 +23,7 @@ class Craw():
         self.imagepath=imagepath
         downloaded=self.db.selectTable('SELECT Picid from Picture WHERE download = "1"')
         self.downloaded=[x[0] for x in downloaded]
+        self.search=searchnum
     
     def getResponse(self,url='https://gelbooru.com/index.php?',sleeptime=1,**params):
         '''获取页面内容'''
@@ -29,7 +32,6 @@ class Craw():
         except Exception as e:
             print(e)
             return 0
-            pass
         sleep(random.randint(0,int(sleeptime))/2)
         return response 
 
@@ -88,7 +90,7 @@ class Craw():
         '''通过tag获取图片id'''
         start=time.time()#时间
         id_list=[]
-        pidmax=20000
+        pidmax=self.search
         for pid in range(0,pidmax,42):
             soup=self.getListSoup(str(pid))
             if(soup):
@@ -143,6 +145,7 @@ class Craw():
                 self.imagecontent=res.content
                 self.saveImage(name)
                 if(count>=self.download_num):break
+        return count
 
         
     
@@ -153,6 +156,19 @@ class Craw():
 
 
 if __name__=='__main__':
+    download_one_time=200#单次下载数量
     root_dir=os.path.dirname(os.path.realpath(__file__))
-    c=Craw(['melailai'],number=200)
+    c_list:List[Craw]=[]    #存储爬虫对象
+
+    #特地下载
+    down_num=100
+    c=Craw(['torino_aqua'],number=down_num)
     c.downLoad()
+    
+    #更新作者列表作品
+    down_num=20
+    for artist in artistlist:
+        c_list.append(Craw(artist,number=down_num))
+    for c in c_list:
+        c.downLoad()
+

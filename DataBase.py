@@ -1,5 +1,6 @@
 import sqlite3
 import os
+from typing import List
 
 class Data():
     def __init__(self,**dict):
@@ -249,6 +250,23 @@ class DataBase():
             tag_num.append([tagid[2],tagid[1],len(res)])
         tag_num.sort(reverse=True,key=lambda x:x[2])
         return tag_num
+    def getArtistList(self):
+        '''打印作者id'''
+        artistid=self.selectTable('Select artist from Picture where download=1 AND delet=0')
+        artist_list:List[str]=[id[0]for id in artistid]
+        real_list=[]
+        for i in artist_list:
+            j=i.split(',')
+            for k in j:
+                real_list.append(k)
+        artist_list=real_list
+        artist=set(artist_list)
+        res=[]
+        for art in artist:
+            count=artist_list.count(art)
+            res.append([art,count])
+        res.sort(reverse=True,key=lambda x:x[1])
+        return res
     def __del__(self):
         '''析构函数'''
         self.cur.close()
@@ -261,3 +279,4 @@ if __name__=='__main__':
     #print(db.getAllPath())
     # db.updataTags()
     # db.printGelwithoutChi()
+    print(db.getArtistList())
