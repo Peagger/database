@@ -6,7 +6,7 @@ import requests
 import bs4
 import os
 from DataBase import *
-from .data import artistlist,artistlist_len
+from data import artistlist,artistlist_len
 import time
 class Craw():
     root_dir=os.path.dirname(os.path.realpath(__file__))
@@ -100,7 +100,8 @@ class Craw():
                 id_list+=html_list
         print()
         end=time.time()#时间
-        print('获取{}张图片信息,耗时:{:.2f}s'.format(len(id_list),end-start))#side effect
+        tag=' '.join(tag.replace(' ','_') for tag in self.tag)
+        print('标签{:.<28}获取{}张图片信息,耗时:{:.2f}s'.format(tag,len(id_list),end-start))#side effect
         return id_list
     
     def makedirs(self,path):
@@ -163,10 +164,10 @@ if __name__=='__main__':
     #特地下载
     down_num=100
     c=Craw(['torino_aqua'],number=down_num)
-    c.downLoad()
+    # c.downLoad()
     
     #更新作者列表作品
-    down_num=20
+    down_num=10
     for artist in artistlist:
         c_list.append(Craw(artist,number=down_num))
     for c in c_list:
