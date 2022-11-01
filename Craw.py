@@ -101,7 +101,7 @@ class Craw():
         print()
         end=time.time()#时间
         tag=' '.join(tag.replace(' ','_') for tag in self.tag)
-        print('标签{:.<28}获取{}张图片信息,耗时:{:.2f}s'.format(tag,len(id_list),end-start))#side effect
+        print('标签{:<20}获取{}张图片信息,耗时:{:.2f}s'.format(tag,len(id_list),end-start))#side effect
         return id_list
     
     def makedirs(self,path):
