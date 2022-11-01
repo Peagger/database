@@ -49,13 +49,14 @@ class Lable():
             image_path=op.join('./',self.path,image_list[i])
             try:
                 image=cv2.imread(image_path)
+                hight,width = image.shape[:2]
             except:
                 i=i+1
                 continue
             print('第{}张'.format(i+1))
             cv2.destroyAllWindows()
             #缩放图片比例
-            hight,width = image.shape[:2]
+            
             ratioOfHight=self.hight/hight
             ratioOfwidth=self.width/width
             ratio=0
@@ -67,7 +68,7 @@ class Lable():
             cv2.imshow('classify', image)
             #cv2.moveWindow(image_list[i],100,200)
             pressedKey=cv2.waitKeyEx()
-            print('当前输入: ',pressedKey,pressedKey&0xff)
+            #print('当前输入: ',pressedKey,pressedKey&0xff)
 
             if (pressedKey==-1)or(pressedKey&0xff==27):break
             insert_data={'Picid':image_list[i].split('.')[0],'delet':'0','green':'0'}

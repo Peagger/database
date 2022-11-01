@@ -101,7 +101,7 @@ class Craw():
         print()
         end=time.time()#时间
         tag=' '.join(tag.replace(' ','_') for tag in self.tag)
-        print('标签{:<20}获取{}张图片信息,耗时:{:.2f}s'.format(tag,len(id_list),end-start))#side effect
+        print('标签{}获取{}张图片信息,耗时:{:.2f}s'.format(tag,len(id_list),end-start))#side effect
         return id_list
     
     def makedirs(self,path):
@@ -148,6 +148,44 @@ class Craw():
                 if(count>=self.download_num):break
         return count
 
+    def downLoadwithInform(self,insert=True):
+        list=self.getPicid()
+        for id in list:
+            if(int(id) in self.downloaded and insert):#已下载就跳过
+                list.remove(id)
+        count=0 #下载成功计数
+        tried=0 #尝试下载计数
+        scheduled_num=len(list)if len(list)<(self.download_num) else self.download_num
+        
+        def show():
+            length=50
+            rate=tried/scheduled_num
+            done=int(length*rate)
+            undo=length-done
+            print("当前进度{0:>5.1f}%:[{1}->{2}]{3}/{4}".format(rate*100,'▓'*done,'-'*undo,tried,scheduled_num))
+        
+        for id in list:
+            if(tag_dict:=self.getTags(id)):
+                tried+=1
+                #数据库连接
+                url=tag_dict['origin_url']
+                name=id+'.'+url.split('.')[-1]
+                insert_data=dict(self.db.predownload_dict,**tag_dict)
+                self.db.insertData(**insert_data)
+                try:#尝试下载
+                    res=self.getResponse(url=url)
+                    insert_data['download']='1'
+                    insert_data['local_path']=os.path.join(self.imagepath,name)
+                    count+=1
+                    if(insert):
+                        self.db.insertData(**insert_data)
+                except:
+                    continue
+                self.imagecontent=res.content
+                self.saveImage(name)
+                show()
+                if(count>=self.download_num):break
+        print('结束')
         
     
 
@@ -167,9 +205,9 @@ if __name__=='__main__':
     # c.downLoad()
     
     #更新作者列表作品
-    down_num=10
+    down_num=8
     for artist in artistlist:
         c_list.append(Craw(artist,number=down_num))
     for c in c_list:
-        c.downLoad()
+        c.downLoadwithInform()
 
