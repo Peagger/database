@@ -22,7 +22,7 @@ class Craw():
         self.imagecontent=''
         self.imagepath=imagepath
         downloaded=self.db.selectTable('SELECT Picid from Picture WHERE download = "1"')
-        self.downloaded=[x[0] for x in downloaded]
+        self.downloaded=[int(x[0]) for x in downloaded]
         self.search=searchnum
     
     def getResponse(self,url='https://gelbooru.com/index.php?',sleeptime=1,**params):
@@ -150,9 +150,13 @@ class Craw():
 
     def downLoadwithInform(self,insert=True):
         list=self.getPicid()
+        templist=[]
         for id in list:
-            if(int(id) in self.downloaded and insert):#已下载就跳过
-                list.remove(id)
+            if((int(id) in self.downloaded) and (insert)):#已下载就跳过
+                pass
+            else:
+                templist.append(id)
+        list=templist
         count=0 #下载成功计数
         tried=0 #尝试下载计数
         scheduled_num=len(list)if len(list)<(self.download_num) else self.download_num
@@ -197,7 +201,7 @@ class Craw():
 if __name__=='__main__':
     download_one_time=200#单次下载数量
     root_dir=os.path.dirname(os.path.realpath(__file__))
-    c_list:List[Craw]=[]    #存储爬虫对象
+    # c_list:List[Craw]=[]    #存储爬虫对象
 
     #特地下载
     down_num=100
@@ -205,9 +209,8 @@ if __name__=='__main__':
     # c.downLoad()
     
     #更新作者列表作品
-    down_num=8
+    down_num=15
     for artist in artistlist:
-        c_list.append(Craw(artist,number=down_num))
-    for c in c_list:
+        c=Craw(artist,number=down_num)
         c.downLoadwithInform()
 

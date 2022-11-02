@@ -94,12 +94,16 @@ class Lable():
                 self.record.append([-1])
                 continue
             if(pressedKey&0xff==ord(str(3))):   #delet=1
-                shutil.move(image_path,'.\delet')
-                self.movedpic.append(i)
+                try:
+                    shutil.move(image_path,'.\delet')
+                except Exception as e:
+                    print(e)
+                    break
                 self.record.append([i,op.join(root_dir,'.\delet',image_list[i]),op.join(root_dir,self.path)])
                 insert_data['delet']='1'
-                insert_data['local_path']=op.join(root_dir,'.\delet',image_list[i])
+                #insert_data['local_path']=op.join(root_dir,'.\delet',image_list[i])
                 self.db.insertData(**insert_data)
+                self.movedpic.append(i)
                 continue
             if(pressedKey&0xff==ord(str(2))):
                 try:

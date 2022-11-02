@@ -279,4 +279,6 @@ if __name__=='__main__':
     #print(db.getAllPath())
     # db.updataTags()
     # db.printGelwithoutChi()
-    print(db.getArtistList())
+    # print(db.getArtistList())
+    a=db.genSelectSql('Picture',['*'],**{'artist':'hiki niito'})
+    print(len(a),a)

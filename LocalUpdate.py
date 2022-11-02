@@ -69,8 +69,8 @@ class LocalUpdate():
                 picid=file.split('.')[0]
                 realpath=os.path.join(self.realpath,root,file)
                 dbpath=self.db.genSelectSql(Tablename='Picture',target=['local_path'],**{'Picid':picid})[0][0]
-                if(os.path.exists(dbpath)):
-                    continue
+                # if(os.path.exists(dbpath)):
+                #     continue
                 self.db.genUpdateSql(Tablename='Picture',condition={'Picid':picid},**{'local_path':realpath})
                 # print(dbpath[0][0])
                 # print(realpath)
@@ -85,6 +85,7 @@ if __name__=='__main__':
     #m.updateDownloaded('.\\download')
     #m.updateDownloaded(os.path.join(root_dir,'Pictures'),default='1')
     m.updatePicPath('Pictures')
+    m.updateDownloaded('.\Pictures')
     
 
 
