@@ -31,6 +31,7 @@ class Lable():
         rightkeys = (83, 109, 65363, 2555904)
         i=0
         image_list=self.image_list.copy()
+        #print('790715.jpg' in image_list)
         for image in image_list:
             if(image.split('.')[-1] not in self.accepted_format):
                 image_list.remove(image)
