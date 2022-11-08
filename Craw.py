@@ -136,6 +136,8 @@ class Craw():
                 self.db.insertData(**insert_data)
                 try:#尝试下载
                     res=self.getResponse(url=url)
+                    self.imagecontent=res.content
+                    self.saveImage(name)
                     insert_data['download']='1'
                     insert_data['local_path']=os.path.join(self.imagepath,name)
                     count+=1
@@ -143,8 +145,6 @@ class Craw():
                         self.db.insertData(**insert_data)
                 except:
                     continue
-                self.imagecontent=res.content
-                self.saveImage(name)
                 if(count>=self.download_num):break
         return count
 
@@ -178,6 +178,8 @@ class Craw():
                 self.db.insertData(**insert_data)
                 try:#尝试下载
                     res=self.getResponse(url=url)
+                    self.imagecontent=res.content
+                    self.saveImage(name)
                     insert_data['download']='1'
                     insert_data['local_path']=os.path.join(self.imagepath,name)
                     count+=1
@@ -185,8 +187,6 @@ class Craw():
                         self.db.insertData(**insert_data)
                 except:
                     continue
-                self.imagecontent=res.content
-                self.saveImage(name)
                 show()
                 if(count>=self.download_num):break
         print('结束')

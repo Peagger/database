@@ -1,6 +1,7 @@
 import sqlite3
 import os
 from typing import List
+import shutil
 
 class Data():
     def __init__(self,**dict):
@@ -209,14 +210,14 @@ class DataBase():
                 pic=[id[0]for id in pic_list]
                 imageid+=pic
         for image in imageid:
-            path_list=self.genSelectSql(Tablename='Picture',target=['local_path'],**{'Picid':image,'delet':'0','download':'1'})
+            path_list=self.genSelectSql(Tablename='Picture',target=['local_path'],**{'Picid':image,'delet':'0','download':'1','green':'1'})
             if path_list:
                 pathlist.append(path_list[0][0])
         return pathlist
     
     def getAllPath(self):
         tagid=[]
-        tagid_list=self.selectTable('Select local_path from Picture where download=1 and delet=0')
+        tagid_list=self.selectTable('Select local_path from Picture where download=1 and delet=0 and green=1')
         if(tagid_list):
             tagid=[id[0]for id in tagid_list]
         return tagid
@@ -225,10 +226,7 @@ class DataBase():
         pathlist=[]
         for name in name_list:
             pathlist.append(self.getPathByname(name))
-        path=pathlist[0]
-        for i in pathlist:
-            path=list(set(path)&set(i))
-        return path
+        return pathlist
     
     def printGelwithoutChi(self):
         '''打印没有中文名的tag'''
@@ -240,7 +238,10 @@ class DataBase():
             tag_num.append([tagid[1],len(res)])
         tag_num.sort(reverse=True,key=lambda x:x[1])
         for tag in tag_num:
-            print(tag[0],end=',')
+            print(tag,end=',')
+        with open('dst\\tags.txt','w') as f:
+            for tag in tag_num:
+                f.write("{},".format(tag[0]))
     def getTagList(self):
         tagids=self.selectTable('Select * from Tags')
         tag_num=[]
@@ -274,11 +275,4 @@ class DataBase():
 
 if __name__=='__main__':
     db=DataBase()
-    #db.reCreateTables()
-    #db.updataTags()
-    #print(db.getAllPath())
-    # db.updataTags()
-    # db.printGelwithoutChi()
-    print(db.getArtistList())
-    # a=db.genSelectSql('Picture',['*'],**{'artist':'swkl:d'})
-    # print(len(a))
+    db.updataTags()
