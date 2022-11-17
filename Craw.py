@@ -204,9 +204,9 @@ if __name__=='__main__':
     # c_list:List[Craw]=[]    #存储爬虫对象
 
     #特地下载
-    down_num=100
-    c=Craw(['torino_aqua'],number=down_num)
-    # c.downLoad()
+    down_num=200
+    c=Craw(['genshin_impact'],number=down_num,searchnum=1000)
+    #c.downLoadwithInform()
     
     #更新作者列表作品
     down_num=15
